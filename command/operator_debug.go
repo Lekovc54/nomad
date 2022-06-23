@@ -588,6 +588,16 @@ func (c *OperatorDebugCommand) Run(args []string) int {
 	// Write complete list of server members to file
 	c.writeJSON(clusterDir, "members.json", c.members, err)
 
+	// Get raft peers list and write to file
+	peers, err := client.Status().Peers()
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Failed to retrieve list of peers; err: %v", err))
+		return 1
+	}
+	if len(peers) > 0 {
+		c.writeJSON(clusterDir, "peers.json", peers, err)
+	}
+
 	// Filter for servers matching criteria
 	c.serverIDs, err = filterServerMembers(c.members, serverIDs, c.region)
 	if err != nil {
